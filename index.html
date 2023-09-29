@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trading Calculator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 50%;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        h3 {
+            margin-top: 20px;
+            color: #333;
+        }
+        /* CSS for table styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table, th, td {
+    border: 1px solid #e0e0e0;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    color: #333;
+}
+
+td {
+    background-color: #fff;
+    color: #444;
+}
+
+/* Hover effect for table rows */
+tr:hover {
+    background-color: #f5f5f5;
+    transition: background-color 0.2s;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Trading Calculator</h2>
+        <form id="tradingForm">
+            <label for="capital">Capital Used (in Rupees):</label>
+            <input type="number" id="capital" required><br><br>
+
+            <label for="riskPercentage">Percentage of Risk (%):</label>
+            <input type="number" id="riskPercentage" required><br><br>
+
+            <label for="targetPercentage">Percentage of Target (%):</label>
+            <input type="number" id="targetPercentage" required><br><br>
+
+            <label for="stockValue">Current Value of Stock:</label>
+            <input type="number" id="stockValue" required><br><br>
+
+            <label for="stoplossAmount">Stoploss Amount (in Rupees):</label>
+            <input type="number" id="stoplossAmount" required><br><br>
+
+            <button type="button" onclick="calculateTrade()">Calculate</button>
+        </form>
+
+        <h3>Results for Intraday (With Leverage):</h3>
+        <table>
+            <tr>
+                <th>Parameter</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td>Max Loss (in Rupees)</td>
+                <td><span id="intradayMaxLoss"></span></td>
+            </tr>
+            <tr>
+                <td>Max Profit (in Rupees)</td>
+                <td><span id="intradayMaxProfit"></span></td>
+            </tr>
+            <tr>
+                <td>Risk:Reward Ratio</td>
+                <td><span id="intradayRiskRewardRatio"></span></td>
+            </tr>
+            <tr>
+                <td>Number of Shares to Buy</td>
+                <td><span id="intradaySharesToBuy"></span></td>
+            </tr>
+            <tr>
+                <td>Price of One Share (in Rupees)</td>
+                <td><span id="intradaySharePrice"></span></td>
+            </tr>
+            <tr>
+                <td>Total Amount Required (in Rupees)</td>
+                <td><span id="intradayTotalAmount"></span></td>
+            </tr>
+        </table>
+
+        <h3>Results for Long Term (No Leverage):</h3>
+        <table>
+            <tr>
+                <th>Parameter</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td>Max Loss (in Rupees)</td>
+                <td><span id="longTermMaxLoss"></span></td>
+            </tr>
+            <tr>
+                <td>Max Profit (in Rupees)</td>
+                <td><span id="longTermMaxProfit"></span></td>
+            </tr>
+            <tr>
+                <td>Risk:Reward Ratio</td>
+                <td><span id="longTermRiskRewardRatio"></span></td>
+            </tr>
+            <tr>
+                <td>Number of Shares to Buy</td>
+                <td><span id="longTermSharesToBuy"></span></td>
+            </tr>
+            <tr>
+                <td>Price of One Share (in Rupees)</td>
+                <td><span id="longTermSharePrice"></span></td>
+            </tr>
+            <tr>
+                <td>Total Amount Required (in Rupees)</td>
+                <td><span id="longTermTotalAmount"></span></td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        function calculateTrade() {
+            var capital = parseFloat(document.getElementById("capital").value);
+            var riskPercentage = parseFloat(document.getElementById("riskPercentage").value);
+            var targetPercentage = parseFloat(document.getElementById("targetPercentage").value);
+            var stockValue = parseFloat(document.getElementById("stockValue").value);
+            var stoplossAmount = parseFloat(document.getElementById("stoplossAmount").value);
+
+            // Automatically consider leverage (5x)
+            stockValue /= 5;
+
+            var riskAmount = (capital * riskPercentage) / 100;
+            var targetAmount = (capital * targetPercentage) / 100;
+            var sharesToBuy = (capital * riskPercentage) / (stoplossAmount * 100);
+
+            // Results for Intraday (With Leverage)
+            var intradayMaxLoss = riskAmount.toFixed(2);
+            var intradayMaxProfit = targetAmount.toFixed(2);
+            var intradayRiskRewardRatio = (intradayMaxProfit / intradayMaxLoss).toFixed(2);
+            var intradaySharePrice = stockValue.toFixed(2);
+            var intradayTotalAmount = (sharesToBuy * stockValue).toFixed(2);
+
+            // Results for Long Term (No Leverage)
+            var longTermMaxLoss = riskAmount.toFixed(2);
+            var longTermMaxProfit = targetAmount.toFixed(2);
+            var longTermRiskRewardRatio = (longTermMaxProfit / longTermMaxLoss).toFixed(2);
+            var longTermSharePrice = (stockValue * 5).toFixed(2); // Leverage-adjusted price
+            var longTermTotalAmount = (sharesToBuy * longTermSharePrice).toFixed(2);
+
+            // Update the table cells with the results
+            document.getElementById("intradayMaxLoss").textContent = intradayMaxLoss;
+            document.getElementById("intradayMaxProfit").textContent = intradayMaxProfit;
+            document.getElementById("intradayRiskRewardRatio").textContent = intradayRiskRewardRatio;
+            document.getElementById("intradaySharesToBuy").textContent = sharesToBuy.toFixed(2);
+            document.getElementById("intradaySharePrice").textContent = intradaySharePrice;
+            document.getElementById("intradayTotalAmount").textContent = intradayTotalAmount;
+
+            document.getElementById("longTermMaxLoss").textContent = longTermMaxLoss;
+            document.getElementById("longTermMaxProfit").textContent = longTermMaxProfit;
+            document.getElementById("longTermRiskRewardRatio").textContent = longTermRiskRewardRatio;
+            document.getElementById("longTermSharesToBuy").textContent = sharesToBuy.toFixed(2);
+            document.getElementById("longTermSharePrice").textContent = longTermSharePrice;
+            document.getElementById("longTermTotalAmount").textContent = longTermTotalAmount;
+        }
+    </script>
+</body>
+</html>
